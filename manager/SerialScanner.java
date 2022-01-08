@@ -6,13 +6,18 @@ import java.util.HashMap;
 
 public class SerialScanner {
     protected static HashMap<String, SerialPort> map = new HashMap<>();
-
-    public SerialScanner()
-    {
+    public SerialScanner (boolean Verbose){
         refreshPorts();
+        if(Verbose) {
+            String[] ports = getPortNames();
+            System.out.println("Ports found:");
+            for (String p : ports) {
+                System.out.println("*" + p + "-" + getPortInfo(p));
+            }
+        }
     }
 
-    protected void refreshPorts(){
+    protected void refreshPorts() {
         SerialPort[] ports = SerialPort.getCommPorts();
         for (SerialPort port : ports) {
             String portName = port.getSystemPortName();
@@ -20,9 +25,19 @@ public class SerialScanner {
         }
     }
 
-    public String[] getPortNames(){
+    protected boolean portExists(String port) {
+        refreshPorts();
+        return map.containsKey(port);
+    }
+
+    protected SerialPort getPort(String port) {
+        if (portExists(port)) return map.get(port);
+        else return null;
+    }
+
+    public String[] getPortNames() {
         String[] portNames = new String[map.size()];
-        int i=0;
+        int i = 0;
         for (String key : map.keySet()) {
             portNames[i] = key;
             i++;
@@ -30,15 +45,20 @@ public class SerialScanner {
         return portNames;
     }
 
-    protected boolean portExists(String port){
-        boolean exists = false;
-        refreshPorts();
-        return map.containsKey(port);
+    public String getPortInfo(String port) {
+        if (portExists(port)) return map.get(port).getPortDescription();
+        else return null;
     }
 
-    protected SerialPort getPort(String port)
-    {
-        if(portExists(port))return  map.get(port);
-        else return null;
+    public String detectPort(String Keyword) {
+        String keyfound = null;
+        for (String key : map.keySet()) {
+            if (getPortInfo(key).contains(Keyword)) {
+                keyfound = key;
+                break;
+            }
+        }
+        System.out.println("Detected "+Keyword+":"+keyfound);
+        return keyfound;
     }
 }

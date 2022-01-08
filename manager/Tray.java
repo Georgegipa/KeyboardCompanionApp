@@ -5,13 +5,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.URL;
+import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class Tray {
-    private final String IconPath = "keypad.png" ;
+    private AboutApp app;
     private MenuItem aboutItem;
+    private MenuItem testItem;
     private MenuItem exitItem;
     private MenuItem disconnectedItem;
     private MenuItem connectedItem;
@@ -22,8 +23,14 @@ public class Tray {
     private SystemTray tray;
     public int currentProfile = 99;
 
-    public Tray(){
+    public enum connectionStatus {UNKNOWN, UNAVAILABLE, CONNECTED, DISCONNECTED,}
+
+    ;
+
+    public Tray() {
+        app = new AboutApp();
         aboutItem = new MenuItem("About");
+        testItem = new MenuItem("Test");
         exitItem = new MenuItem("Exit");
         ChangeStatusMenu = new Menu("Change Status");
         connectedItem = new MenuItem("Connected");
@@ -31,20 +38,20 @@ public class Tray {
         disconnectedItem = new MenuItem("Disconnected");
     }
 
-    public void PrepareUI()
-    {
+    public void PrepareUI() {
         if (!SystemTray.isSupported()) {
-            JOptionPane.showMessageDialog(null,"SystemTray is not supported is this os","Error",JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "SystemTray is not supported is this os", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         popup = new PopupMenu();
-        trayIcon = new TrayIcon(createImage(IconPath, "tray icon"));
+        trayIcon = new TrayIcon(ImageHelpers.createImage());
         trayIcon.setImageAutoSize(true);
         tray = SystemTray.getSystemTray();
 
         //Add components to popup menu
         popup.add(aboutItem);
+        popup.add(testItem);
         popup.addSeparator();
         popup.add(ChangeStatusMenu);
         ChangeStatusMenu.add(connectedItem);
@@ -57,13 +64,14 @@ public class Tray {
 
         ActionListener listener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                MenuItem item = (MenuItem)e.getSource();
+                currentProfile = new Random().nextInt(99);
+                MenuItem item = (MenuItem) e.getSource();
                 if ("Connected".equals(item.getLabel())) {
-                    refreshIcon(Color.GREEN,currentProfile);
+                    refreshIcon(connectionStatus.CONNECTED, currentProfile);
                 } else if ("Disconnected".equals(item.getLabel())) {
-                    refreshIcon(Color.RED,currentProfile);
+                    refreshIcon(connectionStatus.DISCONNECTED, currentProfile);
                 } else if ("Unavailable".equals(item.getLabel())) {
-                    refreshIcon(Color.GRAY,currentProfile);
+                    refreshIcon(connectionStatus.UNAVAILABLE, currentProfile);
                 }
             }
         };
@@ -82,16 +90,21 @@ public class Tray {
 
         trayIcon.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null,"This dialog box is run from System Tray");
+                JOptionPane.showMessageDialog(null, "This dialog box is run from System Tray");
             }
         });
 
         aboutItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null,"This dialog box is run from the About menu item");
+                new AboutWindow().prepareUI();
             }
         });
 
+        testItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                new TestJFrame().prepareUI();
+            }
+        });
         exitItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 tray.remove(trayIcon);
@@ -100,49 +113,30 @@ public class Tray {
         });
     }
 
-    public  void refreshIcon (Color color, int profileNumber)
-    {
+    public void refreshIcon(connectionStatus status, int profileNumber) {
+        Color color = null;
+        switch (status) {
+            case CONNECTED:
+                color = Color.GREEN;
+                break;
+            case DISCONNECTED:
+                color = Color.RED;
+                break;
+            case UNAVAILABLE:
+                color = Color.DARK_GRAY;
+                break;
+            case UNKNOWN:
+                color = Color.GRAY;
+                break;
+        }
         try {
-            BufferedImage editImg = ImageIO.read(Tray.class.getResource(IconPath));
-            if(profileNumber >= 0 )
-                addProfileNumber(editImg,profileNumber);
-            addStatusBubble(editImg,color,16);
-        }
-        catch (IOException e )
-        {
-        }
-    }
-
-    private void addStatusBubble(BufferedImage editImg, Color color , int size){
-        Graphics2D g2d = editImg.createGraphics();
-        g2d.setColor(color);
-        g2d.fillOval(editImg.getWidth() - size, 0, size, size);
-        g2d.dispose();
-        trayIcon.setImage(editImg);
-    }
-
-    /**
-     * Display the current profile over the trayIcon
-     * @param editImg The trayIcon image to overlay the given number
-     * @param profileNumber The number which is going to be displayed
-     */
-    private void addProfileNumber(BufferedImage editImg, int profileNumber) {
-            Graphics2D g2d = editImg.createGraphics();
-            g2d.setPaint(Color.WHITE);
-            g2d.setFont(new Font("Serif", Font.BOLD, 65));
-            String s = Integer.toString(profileNumber);
-            g2d.drawString(s, 0, editImg.getHeight()-5);
-            g2d.dispose();
-    }
-
-    protected static Image createImage(String path, String description) {
-        URL imageURL = Tray.class.getResource(path);
-        if (imageURL == null) {
-            System.err.println("Resource not found: " + path);
-            return null;
-        } else {
-            return (new ImageIcon(imageURL, description)).getImage();
+            BufferedImage editImg = ImageIO.read(Tray.class.getResource(app.getIconPath()));
+            if (profileNumber >= 0)
+                editImg = ImageHelpers.addNumberToIcon(editImg, profileNumber);
+            ImageHelpers.addStatusBubble(editImg, color, 16);
+            trayIcon.setImage(editImg);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
-
 }
