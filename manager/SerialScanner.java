@@ -17,8 +17,16 @@ public class SerialScanner {
         }
     }
 
+    public int portsSum()
+    {
+
+        refreshPorts();
+        return map.size();
+    }
+
     protected void refreshPorts() {
         SerialPort[] ports = SerialPort.getCommPorts();
+        map.clear();
         for (SerialPort port : ports) {
             String portName = port.getSystemPortName();
             map.put(portName, port);

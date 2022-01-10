@@ -7,17 +7,14 @@ public class Manager {
         GuiThread guiThread = new GuiThread();
         guiThread.start();
 
-//        String portName  = new SerialScanner(false).detectPort("Arduino");
-//        if(portName!=null) {
-//            try {
-//                SerialPortConnector serialport = new SerialPortConnector(portName);
-//                while (true) {
-//                    serialport.nbreadPort();
-//                }
-//            } catch (Exception e) {
-//                System.out.println("Port not found!");
-//            }
+//        SerialThread st = new SerialThread("COM19");
+//        try {
+//            Thread.sleep(10000);
+//            st.stop();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
 //        }
+
 
     }
 }
