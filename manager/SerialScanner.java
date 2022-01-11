@@ -17,14 +17,13 @@ public class SerialScanner {
         }
     }
 
-    public int portsSum()
+    public static int portsSum()
     {
-
         refreshPorts();
         return map.size();
     }
 
-    protected void refreshPorts() {
+    protected static void refreshPorts() {
         SerialPort[] ports = SerialPort.getCommPorts();
         map.clear();
         for (SerialPort port : ports) {
@@ -33,17 +32,17 @@ public class SerialScanner {
         }
     }
 
-    protected boolean portExists(String port) {
+    protected static boolean portExists(String port) {
         refreshPorts();
         return map.containsKey(port);
     }
 
-    protected SerialPort getPort(String port) {
+    protected static SerialPort getPort(String port) {
         if (portExists(port)) return map.get(port);
         else return null;
     }
 
-    public String[] getPortNames() {
+    public static String[] getPortNames() {
         String[] portNames = new String[map.size()];
         int i = 0;
         for (String key : map.keySet()) {
@@ -53,12 +52,12 @@ public class SerialScanner {
         return portNames;
     }
 
-    public String getPortInfo(String port) {
+    public static String getPortInfo(String port) {
         if (portExists(port)) return map.get(port).getPortDescription();
         else return null;
     }
 
-    public String detectPort(String Keyword) {
+    public static String detectPort(String Keyword) {
         String keyfound = null;
         for (String key : map.keySet()) {
             if (getPortInfo(key).contains(Keyword)) {
