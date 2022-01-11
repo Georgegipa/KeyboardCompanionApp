@@ -145,11 +145,14 @@ public class Tray {
                 items[i] = new CheckboxMenuItem(portName);
                 PortsMenu.add(items[i]);
                 items[i].addItemListener(new ItemListener() {
+                    SerialThread thread = null;//= new SerialThread(portName);
                     public void itemStateChanged(ItemEvent e) {
-                        boolean justPressed = false;
-                        SerialThread thread = new SerialThread(portName);
-                         if(e.getStateChange() == ItemEvent.DESELECTED){
-                                thread.t.interrupt();
+                        int getState = e.getStateChange();
+                        if( getState != ItemEvent.SELECTED){
+                            thread.stop();
+                        }
+                        else {
+                            thread = new SerialThread(portName);
                         }
                     }
                 });

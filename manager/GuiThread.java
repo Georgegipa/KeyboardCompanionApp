@@ -4,7 +4,6 @@ import javax.swing.*;
 
 public class GuiThread extends Thread {
     private final Tray tray;
-    private final SerialScanner SS;
     private int numberOfPorts, lastNumberOfPorts;
     public GuiThread(){
         try {
@@ -15,23 +14,22 @@ public class GuiThread extends Thread {
             System.err.println("UI error");
         }
         tray = new Tray();
-        SS = new SerialScanner(false);
-        lastNumberOfPorts= SS.portsSum();
+        lastNumberOfPorts= SerialScanner.portsSum();
         numberOfPorts = lastNumberOfPorts;
-        tray.setPorts(SS.getPortNames());
+        tray.setPorts(SerialScanner.getPortNames());
         tray.DynamicUI();
     }
 
     public void run(){
         while (true) {
-            numberOfPorts = SS.portsSum();
+            numberOfPorts = SerialScanner.portsSum();
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
                 System.err.println("Thread error");
             }
             if (numberOfPorts != lastNumberOfPorts) {
-                tray.setPorts(SS.getPortNames());
+                tray.setPorts(SerialScanner.getPortNames());
                 tray.DynamicUI();
                 lastNumberOfPorts = numberOfPorts;
             }

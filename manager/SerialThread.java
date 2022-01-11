@@ -1,18 +1,25 @@
 package manager;
 
-import java.io.IOException;
-
 public class SerialThread implements Runnable {
     private SerialPortConnector comPort;
     private boolean running;
+    private final String port;
+    private Exception e;
     Thread t;
 
     public SerialThread(String port) {
+        this.port = port;
+        reEstablishConnection();
+    }
+
+    public void reEstablishConnection(){
         try {
             comPort = new SerialPortConnector(port);
-        } catch (Exception e) {
-            System.err.println("Port doesn't exist");
+        } catch (Exception e){
+            this.e = e;
         }
+        if(comPort!=null)
+            comPort.closeConnection();
         String threadName = "ThreadPort" + port;
         t = new Thread(this, threadName);
         running = true;
@@ -20,25 +27,19 @@ public class SerialThread implements Runnable {
     }
 
     public void run() {
-        comPort.eventBus();
-        if(Thread.interrupted())
+        if(comPort!=null)comPort.openConnection();
+        else System.err.println("Error:"+e);
+        while (running && comPort!=null)
         {
-            comPort.closeConnection();
+            String incoming = comPort.readPort();
+            if(!incoming.isEmpty())
+                System.out.println();
         }
-//        while (!Thread.interrupted()) {
-//            //if(comPort.nbreadPort()==null)running=false;
-//            comPort.nbreadPort();
-//        }
-//        try {
-//            comPort.initConnection();
-//        } catch (Exception e) {
-//           System.err.println("Connection error!");
-//        }
     }
 
     public void stop(){
-        comPort.closeConnection();
         running = false;
-
+        if(comPort!=null)
+        comPort.closeConnection();
     }
 }

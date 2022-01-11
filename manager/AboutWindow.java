@@ -17,7 +17,7 @@ public class AboutWindow extends JFrame {
                         + "<p>Developed by:"+app.getDeveloper()+"</p>"
                         + "<p>Build:"+app.getBuild()
                         + "<p>Version:"+app.getVersion()+"</p>"+"</html>");
-        this.add(aboutLbl);//προσθήκη του label στο Jframe
+        this.add(aboutLbl);
 
         //setup the frame
         this.setSize(350, 150);
