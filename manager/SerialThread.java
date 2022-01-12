@@ -27,13 +27,16 @@ public class SerialThread implements Runnable {
     }
 
     public void run() {
+
         if(comPort!=null)comPort.openConnection();
         else System.err.println("Error:"+e);
         while (running && comPort!=null)
         {
-            String incoming = comPort.readPort();
-            if(!incoming.isEmpty())
-                System.out.println();
+            String incoming = "";
+            if(comPort.bytesAvailable())
+                incoming = comPort.readPort2();
+            if(!incoming.isEmpty() )
+                System.out.println(incoming);
         }
     }
 

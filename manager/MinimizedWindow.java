@@ -5,11 +5,10 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class MinimizedWindow extends JFrame {
-    private final AboutApp app;
     private String labelContents;
     public  MinimizedWindow(){
         super();
-        app = new AboutApp();
+        AboutApp app = new AboutApp();
         labelContents = "<html>"
                 + "<p>Current Profile:?</p>"
                 + "<p>Connection Status:UNKNOWN"
@@ -37,7 +36,7 @@ public class MinimizedWindow extends JFrame {
         this.setSize(350, 150);
         this.setLocationRelativeTo(null);
         this.setResizable(false);
-        this.setTitle("Info-"+app.getName());
+        this.setTitle("Info-"+ AboutApp.getName());
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 

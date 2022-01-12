@@ -40,6 +40,7 @@ public class SerialPortConnector extends SerialScanner {
 
     public boolean checkProtocol() throws IOException, InterruptedException {
         int progressFlag = 1;
+        long timeout = 7;
         long startTime = System.currentTimeMillis();
         boolean done = false;
         while (!done) {
@@ -80,10 +81,11 @@ public class SerialPortConnector extends SerialScanner {
                 Thread.sleep(250);
             }
             //timeout in seconds
-            long timeout = 5;
             if ((System.currentTimeMillis() - startTime) > timeout * 1000)
                 return false;
         }
+        double timeTaken = (System.currentTimeMillis()-startTime)/1000.00;
+        System.out.println("Connection Established! Took: "+timeTaken+"sec" );
         System.out.println(protocol + ":" + protocolVersion + " running on board:" + boardName + " with:" + buttons + " buttons");
         return !boardName.isEmpty();//if name is filled then connection is established
     }
@@ -109,6 +111,10 @@ public class SerialPortConnector extends SerialScanner {
         byte[] readBuffer = new byte[comPort.bytesAvailable()];
         comPort.readBytes(readBuffer, readBuffer.length);
         return new String(readBuffer, StandardCharsets.UTF_8);
+    }
+
+    public boolean bytesAvailable(){
+        return comPort.bytesAvailable() > 0;
     }
 
     public String readPort2() {
